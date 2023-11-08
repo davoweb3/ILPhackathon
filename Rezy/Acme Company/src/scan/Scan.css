@@ -1,0 +1,23 @@
+/* Scan.css */
+
+.barcode-scanner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background-color: #000; /* Set the background color to black for a scanner effect */
+  border: 2px solid #fff; /* Add a white border for contrast */
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3); /* Add a subtle shadow for depth */
+
+  /* Add CSS animations for a scanner effect */
+  animation: scanner-effect 2s infinite linear;
+}
+
+@keyframes scanner-effect {
+  0% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(100%);
+  }
+}
