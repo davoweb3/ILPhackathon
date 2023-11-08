@@ -1,0 +1,222 @@
+{
+	"info": {
+		"_postman_id": "a07ca556-2c5a-4984-bbc9-6da17c4b9ab6",
+		"name": "New Collection",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "12831157"
+	},
+	"item": [
+		{
+			"name": "Peer-to-Peer Payment Copy",
+			"item": [
+				{
+					"name": "Create Receiver (remote Incoming Payment)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const body = pm.response.json();",
+									"",
+									"pm.collectionVariables.set(\"receiverId\", body.data.createReceiver.receiver.id);",
+									"pm.expect(pm.collectionVariables.get(\"receiverId\")).to.be.a('string');"
+									
+								],
+								"type": "text/javascript"
+								
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "graphql",
+							"graphql": {
+								"query": "mutation CreateReceiver($input: CreateReceiverInput!) {\n  createReceiver(input: $input) {\n    code\n    message\n    receiver {\n      completed\n      createdAt\n      expiresAt\n      metadata\n      id\n      incomingAmount {\n        assetCode\n        assetScale\n        value\n      }\n      paymentPointerUrl\n      receivedAmount {\n        assetCode\n        assetScale\n        value\n      }\n      updatedAt\n    }\n    success\n  }\n}",
+								"variables": "{\n  \"input\": {\n    \"metadata\": {\n        \"description\": \"PET bottles payment, Thanks!\"\n    },\n    \"incomingAmount\": {\n      \"assetCode\": \"USD\",\n      \"assetScale\": 2,\n      \"value\": 5\n    },\n    \"paymentPointerUrl\": \"https://happy-life-bank-backend/accounts/pfry\"\n  }\n}"
+							}
+						},
+						"url": {
+							"raw": "{{RafikiGraphqlHost}}/graphql",
+							"host": [
+								"{{RafikiGraphqlHost}}"
+							],
+							"path": [
+								"graphql"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Quote",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const body = pm.response.json();",
+									"",
+									"pm.collectionVariables.set(\"quoteId\", body.data.createQuote.quote.id);",
+									"pm.expect(pm.collectionVariables.get(\"quoteId\")).to.be.a('string');"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"",
+									"const getPaymentPointersQuery = `",
+									"query GetPaymentPointers {",
+									"    paymentPointers {",
+									"        edges {",
+									"            cursor",
+									"            node {",
+									"                id",
+									"                publicName",
+									"                url",
+									"            }",
+									"        }",
+									"    }",
+									"}`",
+									"",
+									"const postRequest = {",
+									"  url: `${pm.collectionVariables.get(\"RafikiGraphqlHost\")}/graphql`,",
+									"  method: 'POST',",
+									"  body: {",
+									"    mode: 'graphql',",
+									"    graphql: {",
+									"        query:getPaymentPointersQuery",
+									"    }",
+									"  }",
+									"};",
+									"",
+									"",
+									"pm.sendRequest(postRequest, (error, response) => {",
+									"    const body = response.json();",
+									"    const gfranklinPaymentPointerId = body.data.paymentPointers.edges.map(e => e.node).find(node => node.publicName === 'Acme Recycling Company')?.id",
+									"",
+									"    pm.collectionVariables.set(\"gfranklinPaymentPointerId\", gfranklinPaymentPointerId)",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "graphql",
+							"graphql": {
+								"query": "mutation CreateQuote($input: CreateQuoteInput!) {\n  createQuote(input: $input) {\n    code\n    message\n    quote {\n      createdAt\n      expiresAt\n      highEstimatedExchangeRate\n      id\n      lowEstimatedExchangeRate\n      maxPacketAmount\n      minExchangeRate\n      paymentPointerId\n      receiveAmount {\n        assetCode\n        assetScale\n        value\n      }\n      receiver\n      debitAmount {\n        assetCode\n        assetScale\n        value\n      }\n    }\n  }\n}",
+								"variables": "{\n  \"input\": {\n    \"paymentPointerId\": \"{{gfranklinPaymentPointerId}}\",\n    \"receiver\": \"{{receiverId}}\"\n  }\n}"
+							}
+						},
+						"url": {
+							"raw": "{{RafikiGraphqlHost}}/graphql",
+							"host": [
+								"{{RafikiGraphqlHost}}"
+							],
+							"path": [
+								"graphql"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Outgoing Payment",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const body = pm.response.json();",
+									"",
+									"pm.collectionVariables.set(\"outgoingPaymentId\", body.data.createOutgoingPayment.payment.id);",
+									"pm.expect(pm.collectionVariables.get(\"outgoingPaymentId\")).to.be.a('string');"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "graphql",
+							"graphql": {
+								"query": "mutation CreateOutgoingPayment($input: CreateOutgoingPaymentInput!) {\n  createOutgoingPayment(input: $input) {\n    code\n    message\n    payment {\n      createdAt\n      error\n      metadata\n      id\n      paymentPointerId\n      receiveAmount {\n        assetCode\n        assetScale\n        value\n      }\n      receiver\n      debitAmount {\n        assetCode\n        assetScale\n        value\n      }\n      sentAmount {\n        assetCode\n        assetScale\n        value\n      }\n      state\n      stateAttempts\n    }\n    success\n  }\n}",
+								"variables": "{\n  \"input\": {\n    \"paymentPointerId\": \"{{gfranklinPaymentPointerId}}\",\n    \"quoteId\": \"{{quoteId}}\"\n  }\n}"
+							}
+						},
+						"url": {
+							"raw": "{{RafikiGraphqlHost}}/graphql",
+							"host": [
+								"{{RafikiGraphqlHost}}"
+							],
+							"path": [
+								"graphql"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Outgoing Payment",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "graphql",
+							"graphql": {
+								"query": "query GetOutgoingPayment($id: String!) {\noutgoingPayment(id: $id) {\n    createdAt\n    error\n    metadata\n    id\n    paymentPointerId\n    quote {\n      id\n    }\n    receiveAmount {\n      assetCode\n      assetScale\n      value\n    }\n    receiver\n    debitAmount {\n      assetCode\n      assetScale\n      value\n    }\n    sentAmount {\n      assetCode\n      assetScale\n      value\n    }\n    state\n    stateAttempts\n  }\n}",
+								"variables": "{\n    \"id\": \"{{outgoingPaymentId}}\"\n}"
+							}
+						},
+						"url": {
+							"raw": "{{RafikiGraphqlHost}}/graphql",
+							"host": [
+								"{{RafikiGraphqlHost}}"
+							],
+							"path": [
+								"graphql"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "RafikiGraphqlHost",
+			"value": "http://localhost:3001"
+		},
+		{
+			"key": "RafikiGraphqlHost",
+			"value": "http://localhost:3001"
+		},
+		{
+			"key": "receiverId",
+			"value": ""
+		},
+		{
+			"key": "gfranklinPaymentPointerId",
+			"value": ""
+		},
+		{
+			"key": "quoteId",
+			"value": ""
+		},
+		{
+			"key": "outgoingPaymentId",
+			"value": ""
+		}
+	]
+}

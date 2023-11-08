@@ -1,0 +1,14 @@
+{
+  "name": "your-app-name",
+  "version": "1.0.0",
+  "description": "Your app description",
+  "main": "app.js",
+  "scripts": {
+    "start": "node collection.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.17.1",
+    "newman": "^5.2.1"
+  }
+}
