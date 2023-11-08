@@ -1,6 +1,8 @@
 # rezyonrafiki
 This is a repo for a new version of Rezy , that works with a Rafiki local instance and a set of services and two portals one for Recyclers and other for Recycling Companies.
 
+Please clone this Rafiki Alpha 3 from https://github.com/davoweb3/rafikialpha3
+
 # How Rezy Works
 Here's a glimpse into how Rezy operates:
 
